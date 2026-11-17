@@ -1,0 +1,15 @@
+market_id,name,district,address,market_type,in_stat_monitoring,source_url
+eski_jova,Eski Jo'va (Chorsu) dehqon bozori,,,bazaar,1,https://stat.uz/images/uploads/reliz2021/minmax_31_08_22_english.pdf
+oloy,Oloy dehqon bozori,,,bazaar,1,https://stat.uz/images/uploads/reliz2021/minmax_31_08_22_english.pdf
+mirobod,Mirobod dehqon bozori,Mirobod,Avliyoota ko'chasi,bazaar,1,https://www.afisha.uz/uz/gorod/2026/08/18/school-bazaar
+farhod,Farhod dehqon bozori,Uchtepa,Chilonzor-G9A massivi,bazaar_with_wholesale_section,1,https://www.yellowpages.uz/en/rubric/markets/tashkent
+qoyliq,Qo'yliq dehqon bozori,,,bazaar,1,https://stat.uz/images/uploads/reliz2021/minmax_31_08_22_english.pdf
+yunusobod,Yunusobod dehqon bozori,Yunusobod,,bazaar,0,https://www.afisha.uz/uz/gorod/2026/08/18/school-bazaar
+chilonzor,Chilonzor dehqon bozori,Chilonzor,Bunyodkor va Farhod ko'chalari kesishuvi,bazaar,0,https://www.afisha.uz/uz/gorod/2026/08/18/school-bazaar
+askiya,Askiya dehqon bozori,Chilonzor,"Bunyodkor shoh ko'chasi, 156A",bazaar,0,https://www.yellowpages.uz/en/rubric/markets/tashkent
+navroz,Navro'z dehqon bozori,Mirzo Ulug'bek,"TTZ-2 dahasi, Buyuk Ipak Yo'li va Gulsanam ko'chalari kesishuvi",bazaar,0,https://www.goldenpages.uz/uz/company/?Id=5058
+aviasozlar,Aviasozlar dehqon bozori,,,bazaar,0,https://www.afisha.uz/uz/gorod/2026/08/18/school-bazaar
+sergeli,Sergeli dehqon bozori,Sergeli,,bazaar,0,https://talimxabarlari.uz/40909/
+qoraqamish,Qoraqamish dehqon bozori,,,bazaar,0,https://talimxabarlari.uz/40909/
+qoyliq_wholesale,Qo'yliq ulgurji bozori (agricultural wholesale market),,,wholesale (closed for reconstruction Jan 2024; current status not confirmed),0,https://kun.uz/en/news/2024/01/05/kuylik-wholesale-market-in-tashkent-closed-for-reconstruction
+food_city,Food City (wholesale food complex),,,wholesale,0,https://kun.uz/en/news/2024/01/05/kuylik-wholesale-market-in-tashkent-closed-for-reconstruction

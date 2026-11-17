@@ -1,0 +1,22 @@
+{
+  "name": "buyai",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "BuyAI: four AI agents that find where to buy cheapest, whether to buy now or wait, and whether you can afford it.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.119.0",
+    "chart.js": "4.6.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "6.3.0",
+    "vite": "8.3.8"
+  }
+}

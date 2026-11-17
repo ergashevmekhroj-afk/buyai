@@ -1,0 +1,8 @@
+.netlify
+.DS_Store
+node_modules/
+web/dist/
+.claude/
+web/.vite/
+*.log
+.env*

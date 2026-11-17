@@ -1,0 +1,39 @@
+product_id,name_en,name_uz,unit,category
+rice,Rice,Guruch,kg,grains
+barley,Barley,Arpa,kg,grains
+wheat,Wheat,Bug'doy,kg,grains
+corn,Corn,Makkajo'xori,kg,grains
+compound_feed,Compound feed,Omuxta yem,kg,feed
+flour_high,High-grade wheat flour,Oliy navli bug'doy uni,kg,flour_bread
+flour_first,First grade wheat flour,1-navli bug'doy uni,kg,flour_bread
+bread,Wheat bread from 1st grade flour,1-navli undan non,kg,flour_bread
+beef,Beef,Mol go'shti,kg,meat_fish
+mutton,Mutton,Qo'y go'shti,kg,meat_fish
+poultry,Poultry,Parranda go'shti,kg,meat_fish
+fish,Fish of all kinds,Baliq,kg,meat_fish
+milk,Fresh milk (1 liter),Sut,litre,dairy_eggs
+eggs,Eggs (10 pieces ),Tuxum,10 pcs,dairy_eggs
+butter,Butter,Sariyog',kg,dairy_eggs
+oil_cottonseed,Cottonseed oil (1 liter),Paxta yog'i,litre,oil_sugar
+oil_sunflower,Sunflower oil (1 liter),Kungaboqar yog'i,litre,oil_sugar
+sugar,Sugar,Shakar,kg,oil_sugar
+lemons,Lemons,Limon,kg,fruit
+apples,Apples,Olma,kg,fruit
+pears,Pears,Nok,kg,fruit
+grapes,Grape,Uzum,kg,fruit
+watermelon,Watermelon,Tarvuz,kg,fruit
+melon,Melon,Qovun,kg,fruit
+kishmish,Kishmish,Mayiz (kishmish),kg,fruit
+cabbage,Cabbage,Karam,kg,vegetables
+cucumbers,Cucumbers,Bodring,kg,vegetables
+tomatoes,Tomatoes,Pomidor,kg,vegetables
+eggplant,Eggplant,Baqlajon,kg,vegetables
+bell_pepper,Bell pepper,Bulg'or qalampiri,kg,vegetables
+pumpkin,Pumpkin,Qovoq,kg,vegetables
+carrot,Carrot,Sabzi,kg,vegetables
+garlic,Garlic,Sarimsoq,kg,vegetables
+onion,Onion,Piyoz,kg,vegetables
+potatoes,Potatoes,Kartoshka,kg,vegetables
+beans,Beans,Loviya,kg,legumes
+peas,Peas,No'xat,kg,legumes
+mash,Mash,Mosh,kg,legumes

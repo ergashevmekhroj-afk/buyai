@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-14 -24 352 174" role="img" aria-label="BuyAI">
+<!-- BuyAI wordmark: heavy letters; the left arm of the "y" is a price tag. Drawn as paths, no font needed. -->
+<rect x="-14" y="-24" width="352" height="174" rx="20" fill="#ffffff"/><g fill="#111317" fill-rule="evenodd"><path d="M0 0 H38 C57 0 65 10 65 25 C65 35 60 42 52 46 C63 50 69 59 69 72 C69 90 58 100 40 100 H0 Z M22 18 V36 H35 C41 36 44 32 44 27 C44 22 41 18 35 18 Z M22 54 V82 H38 C45 82 48 77 48 68 C48 59 45 54 38 54 Z"/><path d="M77 30 H99 V70 C99 78 102 82 108 82 C114 82 118 78 118 71 V30 H140 V100 H119 V92 C115 98 108 101 100 101 C85 101 77 92 77 76 Z"/><path d="M193 30 H216 L183 120 Q177 136 160 136 H150 V116 H158 Q163 116 165 111 Z"/><path d="M137.6 32.1 L154.8 40.6 L175.2 93.8 L150.9 103.1 L130.5 49.9 Z"/></g>
+<path d="M143.0 46.2 C139.0 32.2 129.0 24.2 119.0 26.2" fill="none" stroke="#ff5a1f" stroke-width="4" stroke-linecap="round"/>
+<circle cx="143.0" cy="46.2" r="5.2" fill="#ffffff"/><circle cx="143.0" cy="46.2" r="2.4" fill="#ff5a1f"/>
+<g fill="#ff5a1f" fill-rule="evenodd"><path d="M219 100 L245 0 H269 L295 100 H272 L267 81 H247 L242 100 Z M250 63 H264 L257 35 Z"/><path d="M303 0 H325 V100 H303 Z"/></g></svg>

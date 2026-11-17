@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BuyAI</title>
+  <meta name="description" content="AI agents for small food businesses: where to buy cheapest, buy now or wait, can I afford it. Uzbek, Russian, English, voice.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="img/buyai-icon.svg">
+  <meta name="theme-color" content="#eceef1">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+  <!-- page background: reeded glass with orange light (pure CSS, see .bg in style.css) -->
+  <div class="bg" aria-hidden="true"><i class="bg-base"></i><i class="bg-shift"></i><i class="bg-ribs"></i><i class="bg-grain"></i></div>
+  <!-- ================= TOP BAR ================= -->
+  <header class="topbar">
+    <a class="brand" href="#ask" aria-label="BuyAI">
+      <img class="wordmark" src="img/buyai-logo.svg" alt="BuyAI" width="96" height="47">
+    </a>
+
+    <nav class="seg" aria-label="Sections">
+      <a href="#ask" data-route="ask" data-i18n="nav_ask">So'rash</a>
+      <a href="#market" data-route="market" data-i18n="nav_market">Bozor</a>
+      <a href="#team" data-route="team" data-i18n="nav_team">Agentlar</a>
+    </nav>
+
+    <div class="top-actions">
+      <a href="#seller" class="btn-seller" data-route="seller">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l1.5-5h15L21 9M3 9h18M3 9v11h18V9M9 20v-6h6v6"/></svg>
+        <span data-i18n="nav_seller">Sotuvchiman</span>
+      </a>
+      <button id="sound-toggle" class="icon-btn" data-i18n-title="sound_off" aria-pressed="false">
+        <svg class="ico-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M22 9l-6 6M16 9l6 6"/></svg>
+        <svg class="ico-on" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M19 5a10 10 0 010 14"/></svg>
+      </button>
+      <div class="lang">
+        <button id="lang-btn" class="lang-btn" aria-haspopup="listbox" aria-expanded="false"><span id="lang-current">UZ</span>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <ul id="lang-menu" class="lang-menu" role="listbox" hidden></ul>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <p id="load-status" class="load-status" data-i18n="loading">Ma'lumotlar yuklanmoqda…</p>
+
+    <!-- ================= ASK (home) ================= -->
+    <section id="page-ask" class="page">
+      <div class="hero">
+        <!-- landing: one centered column on a frosted-glass panel.
+             headline -> who does the work (agent names, each in its avatar colour) -> order box -> regions -> example orders -->
+        <div class="hero-panel">
+          <h1><span data-i18n="hero_1"></span><br><em data-i18n="hero_2"></em></h1>
+          <p class="hero-agents">
+            <a href="#team" class="ag ag1" data-i18n="a1_name"></a>, <a href="#team" class="ag ag2" data-i18n="a2_name"></a>,
+            <a href="#team" class="ag ag3" data-i18n="a3_name"></a> <span data-i18n="and"></span> <a href="#team" class="ag ag4" data-i18n="a4_name"></a>
+            <span data-i18n="hero_agents_tail"></span>
+          </p>
+          <form id="ask-form" class="askbox" autocomplete="off">
+          <textarea id="order-text" rows="1" data-i18n-ph="placeholder" aria-label="Order"></textarea>
+          <button type="button" id="mic" class="mic" data-i18n-title="mic_start">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg>
+          </button>
+          <button type="submit" id="send" class="send" aria-label="Send">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+          </button>
+        </form>
+          <p id="mic-status" class="mic-status" aria-live="polite"></p>
+          <div class="region-row">
+          <button type="button" id="region-btn" class="region-pill" aria-expanded="false">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0119 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+            <span data-i18n="regions_label"></span>: <b id="region-summary"></b>
+          </button>
+          <div id="region-panel" class="region-panel" hidden>
+            <div id="region-list" class="chips"></div>
+            <p class="hint" data-i18n="regions_hint"></p>
+            <button type="button" id="region-done" class="btn-small" data-i18n="done"></button>
+          </div>
+        </div>
+          <div class="suggestions">
+          <button type="button" class="sugg" data-ex="ex_1"></button>
+          <button type="button" class="sugg" data-ex="ex_2"></button>
+          <button type="button" class="sugg" data-ex="ex_3"></button>
+        </div>
+        </div>
+
+        <div class="stats" id="stats"></div>
+      </div>
+
+      <!-- agents pipeline -->
+      <section id="agents" class="agents-wrap" hidden>
+        <h2 class="section-title" id="agents-title"></h2>
+        <div class="pipeline" id="pipeline">
+          <article class="agent" data-agent="1"><header><span class="avatar"><img src="img/agents/mirzo.svg" alt="" width="56" height="56"><i class="badge-num">1</i></span><div><h3 data-i18n="a1_name"></h3><p class="epithet" data-i18n="a1_title"></p><p data-i18n="a1_role"></p></div><span class="state"></span></header><div class="feed"></div></article>
+          <article class="agent" data-agent="2"><header><span class="avatar"><img src="img/agents/dallol.svg" alt="" width="56" height="56"><i class="badge-num">2</i></span><div><h3 data-i18n="a2_name"></h3><p class="epithet" data-i18n="a2_title"></p><p data-i18n="a2_role"></p></div><span class="state"></span></header><div class="feed"></div></article>
+          <article class="agent" data-agent="3"><header><span class="avatar"><img src="img/agents/tarozibon.svg" alt="" width="56" height="56"><i class="badge-num">3</i></span><div><h3 data-i18n="a3_name"></h3><p class="epithet" data-i18n="a3_title"></p><p data-i18n="a3_role"></p></div><span class="state"></span></header><div class="feed"></div></article>
+          <article class="agent" data-agent="4"><header><span class="avatar"><img src="img/agents/xazinachi.svg" alt="" width="56" height="56"><i class="badge-num">4</i></span><div><h3 data-i18n="a4_name"></h3><p class="epithet" data-i18n="a4_title"></p><p data-i18n="a4_role"></p></div><span class="state"></span></header><div class="feed"></div></article>
+        </div>
+      </section>
+
+      <section id="plan" class="card plan" hidden></section>
+
+      <!-- dashboard -->
+      <section class="dash" id="dash">
+        <div class="dash-head">
+          <div><h2 class="section-title" data-i18n="dash_title"></h2><p class="muted" data-i18n="dash_sub"></p></div>
+          <a href="#market" class="link" data-i18n="dash_more"></a>
+        </div>
+        <div class="kpis" id="kpis"></div>
+        <div class="dash-grid">
+          <div class="card">
+            <div class="card-head"><h3 data-i18n="chart_title"></h3><div class="chips small" id="dash-products"></div></div>
+            <div class="chart-box"><canvas id="dash-chart"></canvas></div>
+          </div>
+          <div class="card">
+            <h3 data-i18n="movers_title"></h3>
+            <div id="movers" class="movers"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 data-i18n="cheapest_title"></h3>
+          <div class="table-wrap"><table id="cheapest" class="table"></table></div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ================= TEAM (the four agents) ================= -->
+    <section id="page-team" class="page" hidden>
+      <h1 class="page-title" data-i18n="crew_title"></h1>
+      <p class="muted team-sub" data-i18n="team_sub"></p>
+      <div class="team">
+        <article class="member m1">
+          <img src="img/agents/mirzo.svg" alt="" width="120" height="120">
+          <span class="step">01 / 04</span>
+          <h3 data-i18n="a1_name"></h3>
+          <p class="epithet" data-i18n="a1_title"></p>
+          <p data-i18n="a1_role"></p>
+        </article>
+        <article class="member m2">
+          <img src="img/agents/dallol.svg" alt="" width="120" height="120">
+          <span class="step">02 / 04</span>
+          <h3 data-i18n="a2_name"></h3>
+          <p class="epithet" data-i18n="a2_title"></p>
+          <p data-i18n="a2_role"></p>
+        </article>
+        <article class="member m3">
+          <img src="img/agents/tarozibon.svg" alt="" width="120" height="120">
+          <span class="step">03 / 04</span>
+          <h3 data-i18n="a3_name"></h3>
+          <p class="epithet" data-i18n="a3_title"></p>
+          <p data-i18n="a3_role"></p>
+        </article>
+        <article class="member m4">
+          <img src="img/agents/xazinachi.svg" alt="" width="120" height="120">
+          <span class="step">04 / 04</span>
+          <h3 data-i18n="a4_name"></h3>
+          <p class="epithet" data-i18n="a4_title"></p>
+          <p data-i18n="a4_role"></p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ================= MARKET ================= -->
+    <section id="page-market" class="page" hidden>
+      <h1 class="page-title" data-i18n="market_title"></h1>
+      <div class="card">
+        <div class="row">
+          <label><span data-i18n="m_product"></span><select id="m-product"></select></label>
+          <label><span data-i18n="m_region"></span><select id="m-region"></select></label>
+        </div>
+        <div class="chart-box tall"><canvas id="m-chart"></canvas></div>
+        <p class="hint" data-i18n="m_chart_hint"></p>
+      </div>
+      <div class="card">
+        <h3 data-i18n="offers_now"></h3>
+        <div class="table-wrap"><table id="m-offers" class="table"></table></div>
+      </div>
+    </section>
+
+    <!-- ================= SELLER ================= -->
+    <section id="page-seller" class="page" hidden>
+      <div class="seller-wrap">
+        <h1 class="page-title" data-i18n="seller_title"></h1>
+        <p class="muted" data-i18n="seller_sub"></p>
+        <form id="seller-form" class="card form">
+          <label><span data-i18n="f_name"></span><input name="name" required minlength="2" maxlength="80" autocomplete="organization"></label>
+          <label><span data-i18n="f_phone"></span><input name="phone" type="tel" maxlength="30" placeholder="+998 __ ___ __ __" autocomplete="tel"></label>
+          <label class="check" id="consent-row" hidden><input type="checkbox" name="consent"> <span data-i18n="f_consent"></span></label>
+          <div class="row">
+            <label><span data-i18n="f_region"></span><select name="region" required></select></label>
+            <label><span data-i18n="f_market"></span><input name="market" list="market-list" maxlength="80" data-i18n-ph="f_market_ph"></label>
+          </div>
+          <datalist id="market-list"></datalist>
+          <label><span data-i18n="f_product"></span><select name="product" required></select></label>
+          <div class="row">
+            <label><span id="price-label"></span><input name="price" type="number" inputmode="numeric" min="1" max="9999999" required></label>
+            <label><span data-i18n="f_min"></span><input name="minQty" type="number" inputmode="decimal" min="0.1" step="any" value="10" required></label>
+          </div>
+          <label><span data-i18n="f_fee"></span><input name="fee" type="number" inputmode="numeric" min="0" value="0" required></label>
+          <p id="price-compare" class="compare"></p>
+          <button class="btn-primary" type="submit" data-i18n="f_submit"></button>
+          <p id="seller-result" class="result" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><p class="asof" id="asof"></p><p data-i18n="footer"></p></footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

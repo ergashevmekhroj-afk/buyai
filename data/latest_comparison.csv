@@ -1,0 +1,39 @@
+product_id,name_en,name_uz,unit,month,tashkent_city_bazaar,tashkent_region,stores_national
+apples,Apples,Olma,kg,2026-10-01,15756,14255,14714
+barley,Barley,Arpa,kg,2026-10-01,4800,,
+beans,Beans,Loviya,kg,2026-10-01,21437,19386,19803
+beef,Beef,Mol go'shti,kg,2026-10-01,134802,123701,134077
+bell_pepper,Bell pepper,Bulg'or qalampiri,kg,2026-10-01,11658,10889,11418
+bread,Wheat bread from 1st grade flour,1-navli undan non,kg,2026-10-01,5000,5746,6403
+butter,Butter,Sariyog',kg,2026-10-01,92991,71705,94246
+cabbage,Cabbage,Karam,kg,2026-10-01,5177,4507,4468
+carrot,Carrot,Sabzi,kg,2026-10-01,7463,5779,6531
+compound_feed,Compound feed,Omuxta yem,kg,2026-10-01,4250,,
+corn,Corn,Makkajo'xori,kg,2026-10-01,5514,,
+cucumbers,Cucumbers,Bodring,kg,2026-10-01,10933,10167,9907
+eggplant,Eggplant,Baqlajon,kg,2026-10-01,8044,6681,7267
+eggs,Eggs (10 pieces ),Tuxum,10 pcs,2026-10-01,13465,12722,15307
+fish,Fish of all kinds,Baliq,kg,2026-10-01,46574,40149,53119
+flour_first,First grade wheat flour,1-navli bug'doy uni,kg,2026-10-01,7377,6916,7019
+flour_high,High-grade wheat flour,Oliy navli bug'doy uni,kg,2026-10-01,10621,9991,10375
+garlic,Garlic,Sarimsoq,kg,2026-10-01,22717,17230,19254
+grapes,Grape,Uzum,kg,2026-10-01,17008,15646,15907
+kishmish,Kishmish,Mayiz (kishmish),kg,2026-10-01,66791,58572,65635
+lemons,Lemons,Limon,kg,2026-10-01,38833,39889,39214
+mash,Mash,Mosh,kg,2026-10-01,23375,20886,21127
+melon,Melon,Qovun,kg,2026-10-01,6701,5665,5107
+milk,Fresh milk (1 liter),Sut,litre,2026-10-01,11188,8855,8024
+mutton,Mutton,Qo'y go'shti,kg,2026-10-01,143999,135329,146254
+oil_cottonseed,Cottonseed oil (1 liter),Paxta yog'i,litre,2026-10-01,21987,20416,21097
+oil_sunflower,Sunflower oil (1 liter),Kungaboqar yog'i,litre,2026-10-01,24080,21243,22372
+onion,Onion,Piyoz,kg,2026-10-01,3662,2726,3260
+pears,Pears,Nok,kg,2026-10-01,21473,20408,20916
+peas,Peas,No'xat,kg,2026-10-01,26460,24124,20659
+potatoes,Potatoes,Kartoshka,kg,2026-10-01,5802,4694,5833
+poultry,Poultry,Parranda go'shti,kg,2026-10-01,35849,33635,37411
+pumpkin,Pumpkin,Qovoq,kg,2026-10-01,5639,5775,4705
+rice,Rice,Guruch,kg,2026-10-01,17652,15372,16808
+sugar,Sugar,Shakar,kg,2026-10-01,12211,11867,12786
+tomatoes,Tomatoes,Pomidor,kg,2026-10-01,12195,10100,12498
+watermelon,Watermelon,Tarvuz,kg,2026-10-01,4005,3564,3198
+wheat,Wheat,Bug'doy,kg,2026-10-01,5167,,
