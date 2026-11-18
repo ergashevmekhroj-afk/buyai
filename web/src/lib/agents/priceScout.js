@@ -16,7 +16,7 @@ export async function scout(order, regionIds) {
       .filter((o) => o.product_id === item.product_id)
       .map((o) => {
         const buyQty = Math.max(item.quantity, Number(o.min_qty));
-        return { ...o, buyQty, goodsCost: o.price_som * buyQty, cost: o.price_som * buyQty + o.delivery_fee_som };
+        return { ...o, buyQty, goodsCost: o.price_som * buyQty, cost: o.price_som * buyQty + (o.delivery_fee_som ?? 0) };
       })
       .sort((a, b) => a.cost - b.cost);
     // An offer 20%+ BELOW the official price is suspicious (quality? weight?), so it is not recommended;
@@ -27,7 +27,7 @@ export async function scout(order, regionIds) {
 
   // Delivery is paid once per seller, even if we buy two products from the same seller
   const sellersUsed = new Map();
-  for (const l of lines) if (l.best) sellersUsed.set(l.best.seller_id, l.best.delivery_fee_som);
+  for (const l of lines) if (l.best) sellersUsed.set(l.best.seller_id ?? l.best.offer_id, l.best.delivery_fee_som ?? 0);   // OLX ads: no seller id, delivery to agree
   const goods = lines.reduce((s, l) => s + (l.best ? l.best.goodsCost : 0), 0);
   const delivery = [...sellersUsed.values()].reduce((s, f) => s + f, 0);
 
@@ -48,7 +48,7 @@ export function fitBudget(order, scoutResult) {
   const items = order.items.map((it) => {
     const best = scoutResult.lines.find((l) => l.item.product_id === it.product_id)?.best;
     if (!best) return { ...it, quantity: 1 };                       // no seller: it shows "no offer" anyway
-    const q = Math.floor((share - best.delivery_fee_som) / best.price_som);
+    const q = Math.floor((share - (best.delivery_fee_som ?? 0)) / best.price_som);
     return { ...it, quantity: Math.max(q, Number(best.min_qty)) };
   });
   return { order: { ...order, items }, share, products: withSeller.length };

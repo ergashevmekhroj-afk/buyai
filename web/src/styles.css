@@ -482,3 +482,6 @@ input, select, textarea { font: inherit; color: var(--text); }
 .who span { margin-right: auto; }
 .row-btns { display: flex; gap: 8px; flex-wrap: wrap; }
 .budget-split { padding: 8px 10px; border-radius: 10px; background: var(--brand-soft); font-weight: 600; font-size: .82rem; }
+.badge.olx { background: #23e5db; color: #002f34; }
+a.seller-link { text-decoration: underline; text-decoration-color: var(--brand); text-underline-offset: 3px; }
+.bo-seller, .feed .row-item span { overflow-wrap: anywhere; }

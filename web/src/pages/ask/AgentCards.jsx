@@ -4,6 +4,7 @@ import { t, nameOf } from "../../lib/i18n.js";
 import { som, mln, pct, qtyText, monthName, perUnit } from "../../lib/util.js";
 import ProductIcon from "../../components/ProductIcon.jsx";
 import { PriceRange, Sparkline } from "../../components/MiniCharts.jsx";
+import { deliveryText } from "../../components/SellerName.jsx";
 import { DEFAULT_QTY } from "../../lib/agents/planner.js";
 import CountUp from "../../components/CountUp.jsx";
 import Badge from "../../components/Badge.jsx";
@@ -191,11 +192,11 @@ function OfferList({ all, best, others, unit, regionName }) {
                 return (
                   <tr key={o.offer_id} className={`${o === best ? "chosen" : ""} ${flag}`}>
                     <td>{i + 1}</td>
-                    <td>{o.seller_name} <small>{regionName(o.region_id)}</small>{o.is_demo && <span className="badge demo">{t("demo")}</span>}
+                    <td>{o.url ? <a href={o.url} target="_blank" rel="noopener noreferrer">{o.seller_name} ↗</a> : o.seller_name} <small>{regionName(o.region_id)}</small>{o.source === "olx" && <span className="badge olx">OLX</span>}
                       {flag && <small className={flag === "high" ? "flag-high" : "flag-low"}> ⚠ {t(flag === "high" ? "m_flag_high" : "m_flag_low")}</small>}</td>
                     <td className="num">{som(o.price_som)}</td>
                     <td className="num">{Number(o.min_qty)} {unit === "litre" ? "l" : unit === "10 pcs" ? "×10" : "kg"}</td>
-                    <td className="num">{o.delivery_fee_som ? som(o.delivery_fee_som) : t("free")}</td>
+                    <td className="num">{deliveryText(o)}</td>
                     <td className="num"><b>{mln(o.cost)}</b></td>
                   </tr>);
               })}

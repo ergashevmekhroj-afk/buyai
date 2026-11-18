@@ -36,7 +36,7 @@ const T = {
   done: { uz: "Tayyor", ru: "Готово", en: "Done" },
   stat_prices: { uz: "rasmiy narx", ru: "офиц. цен", en: "official prices" },
   stat_products: { uz: "mahsulot", ru: "товаров", en: "products" },
-  stat_offers: { uz: "sotuvchi taklifi (demo + jonli)", ru: "предложений продавцов (демо + живые)", en: "seller offers (demo + live)" },
+  stat_offers: { uz: "real narx (OLX + sotuvchilar)", ru: "реальных цен (OLX + продавцы)", en: "real prices (OLX + sellers)" },
   stat_agents: { uz: "AI agent", ru: "AI-агента", en: "AI agents" },
 
   // ---------- voice ----------
@@ -184,7 +184,8 @@ const T = {
   kpi_sellers: { uz: "Sotuvchilar", ru: "Продавцы", en: "Sellers" },
   kpi_regions: { uz: "Rasmiy narxli viloyatlar", ru: "Регионы с офиц. ценами", en: "Regions with official prices" },
   kpi_month: { uz: "Oxirgi rasmiy oy", ru: "Последний офиц. месяц", en: "Latest official month" },
-  kpi_demo_note: { uz: "{d} demo · {l} jonli", ru: "{d} демо · {l} живых", en: "{d} demo · {l} live" },
+  kpi_demo_note: { uz: "{o} OLX · {l} BuyAI sotuvchilari", ru: "{o} OLX · {l} продавцов BuyAI", en: "{o} OLX · {l} BuyAI sellers" },
+  olx_updated: { uz: "OLX narxlari yangilandi: {when}", ru: "Цены OLX обновлены: {when}", en: "OLX prices updated: {when}" },
   movers_title: { uz: "3 oyda eng ko'p o'zgargan narxlar (Toshkent shahri)", ru: "Больше всего изменились за 3 мес. (Ташкент)", en: "Biggest 3-month moves (Tashkent city)" },
   chart_title: { uz: "Narx tarixi va taxmin (Toshkent shahri)", ru: "История цен и прогноз (Ташкент)", en: "Price history and forecast (Tashkent city)" },
   cheapest_title: { uz: "Qayerda arzon? (rasmiy o'rtacha)", ru: "Где дешевле? (офиц. средняя)", en: "Where is it cheaper? (official average)" },
@@ -244,9 +245,9 @@ const T = {
   run_error: { uz: "Xatolik: {msg}. Internetni tekshirib, qayta urinib ko'ring.", ru: "Ошибка: {msg}. Проверьте интернет и попробуйте ещё раз.", en: "Error: {msg}. Check your connection and try again." },
   pick_region: { uz: "Kamida bitta viloyatni belgilang.", ru: "Отметьте хотя бы один регион.", en: "Tick at least one region." },
   footer: {
-    uz: "Rasmiy narxlar: O'zbekiston Milliy statistika qo'mitasi (stat.uz, SIAT), CC BY 4.0. Kredit stavkalari: Markaziy bank taqqoslashi (19.10.2026), taklif emas. Demo sotuvchilar namuna ma'lumot; prognozlar taxmin. Ovoz: VoiceLab. Rasmlar: Twemoji (CC BY 4.0). AI: Gemini (zaxira: Claude).",
-    ru: "Официальные цены: Национальный комитет по статистике (stat.uz, SIAT), CC BY 4.0. Ставки: сравнение ЦБ (19.10.2026), не оферта. Демо-продавцы — образец данных; прогнозы — оценки. Голос: VoiceLab. Иконки: Twemoji (CC BY 4.0). AI: Gemini (резерв: Claude).",
-    en: "Official prices: National Statistics Committee of Uzbekistan (stat.uz, SIAT), CC BY 4.0. Loan rates: Central Bank comparison (19.10.2026), not an offer. Demo sellers are sample data; forecasts are estimates. Voice: VoiceLab. Icons: Twemoji (CC BY 4.0). AI: Gemini (backup: Claude).",
+    uz: "Rasmiy narxlar: O'zbekiston Milliy statistika qo'mitasi (stat.uz, SIAT), CC BY 4.0. Kredit stavkalari: Markaziy bank taqqoslashi (19.10.2026), taklif emas. Sotuvchi narxlari: OLX.uz e'lonlari (har kuni o'qiladi, havola orqali) va BuyAI'da ro'yxatdan o'tgan sotuvchilar; prognozlar taxmin. Ovoz: VoiceLab. Rasmlar: Twemoji (CC BY 4.0). AI: Gemini (zaxira: Claude).",
+    ru: "Официальные цены: Национальный комитет по статистике (stat.uz, SIAT), CC BY 4.0. Ставки: сравнение ЦБ (19.10.2026), не оферта. Цены продавцов: объявления OLX.uz (читаются ежедневно, со ссылкой) и продавцы, зарегистрированные в BuyAI; прогнозы — оценки. Голос: VoiceLab. Иконки: Twemoji (CC BY 4.0). AI: Gemini (резерв: Claude).",
+    en: "Official prices: National Statistics Committee of Uzbekistan (stat.uz, SIAT), CC BY 4.0. Loan rates: Central Bank comparison (19.10.2026), not an offer. Seller prices: OLX.uz ads (read daily, linked) and sellers registered in BuyAI; forecasts are estimates. Voice: VoiceLab. Icons: Twemoji (CC BY 4.0). AI: Gemini (backup: Claude).",
   },
   // ---------- business model (plan card + Agents page; numbers in lib/business.js) ----------
   earn_title: { uz: "Siz uchun bepul.", ru: "Для вас бесплатно.", en: "Free for you." },
@@ -309,6 +310,12 @@ const T = {
   grp_dairy: { uz: "Sut mahsulotlari", ru: "Молочные", en: "Dairy" },
   s_budget: { uz: "{cash} {n} ta mahsulotga teng bo'lindi: har biriga ~{share}. Miqdor eng arzon narx bo'yicha hisoblandi.", ru: "{cash} поровну на {n} товаров: ~{share} на каждый. Количество посчитано по самой низкой цене.", en: "{cash} split evenly over {n} products: ~{share} each. Quantities worked out at the lowest price." },
 
+  // ---------- OLX listings ----------
+  olx_open: { uz: "OLX'da ochish", ru: "Открыть на OLX", en: "Open on OLX" },
+  delivery_ask: { uz: "kelishiladi", ru: "по договорённости", en: "to agree" },
+  pn_per_piece_x10: { uz: "e'londa 1 dona {raw} → 10 ta", ru: "в объявлении 1 шт. {raw} → за 10", en: "ad: {raw} per piece → per 10" },
+  pn_per_tray_30: { uz: "e'londa 30 talik lotok {raw} → 10 ta", ru: "в объявлении лоток 30 шт. {raw} → за 10", en: "ad: tray of 30 {raw} → per 10" },
+  pn_per_bag: { uz: "e'londa qop/idish {raw} → 1 birlik", ru: "в объявлении мешок/тара {raw} → за единицу", en: "ad: bag/bottle {raw} → per unit" },
   months: {
     uz: "Yan,Fev,Mar,Apr,May,Iyun,Iyul,Avg,Sen,Okt,Noy,Dek",
     ru: "янв,фев,мар,апр,май,июн,июл,авг,сен,окт,ноя,дек",

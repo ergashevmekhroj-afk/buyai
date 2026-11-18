@@ -25,7 +25,7 @@ export default function Dashboard({ refData: ref }) {
   useEffect(() => { sourceHistory("tsh_city_market", "2026-06-01").then(setMoversData); }, []);
 
   const product = (id) => ref.products.find((p) => p.product_id === id);
-  const { offers, demo_offers: demo, live_offers: live, sellers } = ref.offerStats;   // counted in the database
+  const { offers, olx_offers: olx = 0, live_offers: live, sellers, olx_updated_at: olxAt } = ref.offerStats;   // counted in the database
   const regions = new Set(ref.sources.map((s) => s.region_id).filter(Boolean)).size;
   const month = ref.benchmark.map((b) => b.month).sort().at(-1);
 
@@ -44,7 +44,7 @@ export default function Dashboard({ refData: ref }) {
         <a href="#market" className="link">{t("dash_more")}</a>
       </div>
       <div className="kpis">
-        <div className="kpi"><span>{t("kpi_offers")}</span><b><CountUp to={offers} /></b><small>{t("kpi_demo_note", { d: demo, l: live })}</small></div>
+        <div className="kpi"><span>{t("kpi_offers")}</span><b><CountUp to={offers} /></b><small>{t("kpi_demo_note", { o: olx, l: live })}{olxAt && <><br />{t("olx_updated", { when: new Date(olxAt).toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) })}</>}</small></div>
         <div className="kpi"><span>{t("kpi_sellers")}</span><b><CountUp to={sellers} /></b></div>
         <div className="kpi"><span>{t("kpi_regions")}</span><b><CountUp to={regions} /></b><small>/ 14</small></div>
         <div className="kpi"><span>{t("kpi_month")}</span><b>{monthName(month)}</b><small>stat.uz</small></div>

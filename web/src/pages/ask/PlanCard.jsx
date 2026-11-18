@@ -10,6 +10,7 @@ import { useLang } from "../../hooks.js";
 import Badge from "../../components/Badge.jsx";
 import ProductIcon from "../../components/ProductIcon.jsx";
 import SellerCard from "../../components/SellerCard.jsx";
+import SellerName, { deliveryText, priceNote } from "../../components/SellerName.jsx";
 import { SELLER_FEE, feeOnPlan } from "../../lib/business.js";
 import { NARRATOR } from "../../agentsInfo.js";
 
@@ -98,8 +99,8 @@ export default function PlanCard({ result, refData: ref, soundOn }) {
               <tr key={p.product_id}>
                 <td><span className="p-cell"><ProductIcon id={p.product_id} size={26} /><span><b>{nameOf(p)}</b><span className="sub">{qtyText(o.buyQty, p.unit)}</span>
                   {o.buyQty > l.item.quantity && <span className="sub">{t("min_order", { q: qtyText(o.min_qty, p.unit) })}</span>}</span></span></td>
-                <td><button type="button" className="seller-link" onClick={() => setOpenSeller(o.seller_id)}>{o.seller_name}</button> <Badge offer={o} /><span className="sub">{o.market_name ?? ""}, {regionName(o.region_id)}{o.phone ? `, ${o.phone}` : ""}</span></td>
-                <td className="num">{som(o.price_som)}<span className="sub">{t("delivery")} {o.delivery_fee_som ? som(o.delivery_fee_som) : t("free")}</span></td>
+                <td><SellerName offer={o} onOpen={setOpenSeller} /> <Badge offer={o} /><span className="sub">{o.market_name ?? ""}, {regionName(o.region_id)}{o.phone ? `, ${o.phone}` : ""}</span></td>
+                <td className="num">{som(o.price_som)}<span className="sub">{t("delivery")} {deliveryText(o)}</span>{priceNote(o) && <span className="sub">{priceNote(o)}</span>}</td>
                 <td className="num">{vs(o.vs_official_pct)}<span className="sub">{t("official")} {som(o.official_avg_som)}</span></td>
                 <td className="num"><b>{mln(o.goodsCost)}</b></td>
               </tr>);
@@ -144,7 +145,7 @@ function summaryFor({ s, a, f, advice }, ref) {
     items: s.lines.map((l) => {
       const p = product(l.item.product_id), pa = a.products.find((x) => x.product_id === l.item.product_id);
       return { product: nameOf(p), quantity: l.best?.buyQty ?? l.item.quantity, unit: p.unit, seller: l.best?.seller_name ?? null,
-        demo_seller: l.best?.is_demo ?? null, region: l.best ? regionName(l.best.region_id) : null, price_som: l.best?.price_som ?? null,
+        source: l.best ? (l.best.source === "olx" ? "OLX.uz ad (real, may change; contact via the ad)" : "seller registered in BuyAI") : null, region: l.best ? regionName(l.best.region_id) : null, price_som: l.best?.price_som ?? null,
         official_avg_som: l.best?.official_avg_som ?? null, vs_official_pct: l.best?.vs_official_pct ?? null,
         signal: pa?.signal, next_month_change_pct_estimate: pa?.outlookPct };
     }),
