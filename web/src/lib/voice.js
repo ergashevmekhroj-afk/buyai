@@ -76,29 +76,52 @@ export function stopSpeaking() {
   window.speechSynthesis?.cancel();
 }
 
-export async function speak(text, onEnd = () => {}) {
+// character (optional) = an agent's voice from agentsInfo.js: { uz, en, pitch, rate, female }.
+// VoiceLab has no pitch setting, so we play its audio faster/slower WITHOUT keeping the pitch:
+// pitch 1.18 = higher, younger voice. We ask VoiceLab for speed rate/pitch so the final speed is "rate".
+const audioCache = new Map();   // same text + same voice = play again without spending VoiceLab credits
+
+export async function speak(text, onEnd = () => {}, character = null) {
   stopSpeaking();
   if (!text) return;
-  if (await serverAvailable()) {
+  const pitch = character?.pitch ?? 1, rate = character?.rate ?? 1;
+  const voiceId = character?.[lang];                     // no voice for this language -> browser voice
+  if ((!character || voiceId) && await serverAvailable()) {
     try {
-      const res = await fetch(VOICE_URL, {
-        method: "POST", headers: { ...headers, "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "tts", text: text.slice(0, 1500), language: lang }),
-      });
-      if (res.ok && (res.headers.get("content-type") || "").includes("audio")) {
-        const url = URL.createObjectURL(await res.blob());
-        audio = new Audio(url);
-        audio.onended = () => { URL.revokeObjectURL(url); onEnd(); };
-        await audio.play();
-        return;
+      const key = `${voiceId ?? "default"}|${lang}|${text}`;
+      let blob = audioCache.get(key);
+      if (!blob) {
+        const res = await fetch(VOICE_URL, {
+          method: "POST", headers: { ...headers, "Content-Type": "application/json" },
+          body: JSON.stringify({ mode: "tts", text: text.slice(0, 1500), language: lang, voice_id: voiceId, speed: +(rate / pitch).toFixed(2) }),
+        });
+        if (!res.ok || !(res.headers.get("content-type") || "").includes("audio")) throw new Error("no audio");
+        blob = await res.blob();
+        audioCache.set(key, blob);
       }
+      const url = URL.createObjectURL(blob);
+      audio = new Audio(url);
+      audio.preservesPitch = false;                       // let playbackRate change the pitch too
+      audio.playbackRate = pitch;
+      audio.onended = () => { URL.revokeObjectURL(url); onEnd(); };
+      await audio.play();
+      return;
     } catch { /* fall back to the browser voice */ }
   }
   if (!window.speechSynthesis) { onEnd(); return; }
   const u = new SpeechSynthesisUtterance(text);
   u.lang = LANGS[lang].speech;
-  const voice = speechSynthesis.getVoices().find((v) => v.lang?.toLowerCase().startsWith(lang));
+  // Browsers have no Uzbek voice, and an English voice reads Uzbek with a heavy accent.
+  // A Turkish (then Kazakh / Azerbaijani) voice pronounces Uzbek Latin letters much better, so we try those next.
+  const all = speechSynthesis.getVoices();
+  const langs = lang === "uz" ? ["uz", "tr", "kk", "az"] : [lang];
+  const voices = langs.map((l) => all.filter((v) => v.lang?.toLowerCase().startsWith(l))).find((list) => list.length) ?? [];
+  if (voices[0]) u.lang = voices[0].lang;
+  // a woman's voice for Xazinachi opa if the browser has one (names like Milena, Samantha, "Female")
+  const voice = (character?.female && voices.find((v) => /female|milena|samantha|karen|victoria|alena|katya|zira/i.test(v.name))) || voices[0];
   if (voice) u.voice = voice;
+  u.pitch = Math.min(2, pitch * (character?.female && !voice?.name.match(/female|milena|samantha|karen|victoria|alena|katya|zira/i) ? 1.1 : 1));
+  u.rate = rate;
   u.onend = onEnd;
   speechSynthesis.speak(u);
 }

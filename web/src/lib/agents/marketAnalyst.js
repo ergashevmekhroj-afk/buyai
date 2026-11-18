@@ -10,13 +10,20 @@ const MOVE = 1;                // outlook change under 1% counts as "stable" (1%
 function monthStart(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
 function iso(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`; }
 
-export async function analyse(order, scoutResult, regionIds, ref) {
+// The official data this agent needs. Exported so the app can start loading it early,
+// at the same time as the Price Scout's offers (saves about a second).
+export function loadAnalystData(order, regionIds, ref) {
   const productIds = order.items.map((it) => it.product_id);
-  const sources = ref.sources.filter((s) => regionIds.includes(s.region_id));
-  const [history, forecasts] = await Promise.all([
-    sources.length ? officialHistory(productIds, sources.map((s) => s.source_id), "2025-06-01") : [],
+  const sourceIds = ref.sources.filter((s) => regionIds.includes(s.region_id)).map((s) => s.source_id);
+  return Promise.all([
+    sourceIds.length ? officialHistory(productIds, sourceIds, "2025-06-01") : [],
     forecastsFor(productIds),
   ]);
+}
+
+export async function analyse(order, scoutResult, regionIds, ref, preloaded = null) {
+  const sources = ref.sources.filter((s) => regionIds.includes(s.region_id));
+  const [history, forecasts] = await (preloaded ?? loadAnalystData(order, regionIds, ref));
 
   // Forecasts exist for Tashkent city only (seasonal model); we use them as the outlook
   const thisMonth = iso(monthStart(new Date()));
@@ -49,7 +56,23 @@ export async function analyse(order, scoutResult, regionIds, ref) {
     const flagged = (line?.candidates ?? []).filter((o) =>
       o.vs_official_pct != null && (o.vs_official_pct >= FLAG_HIGH || o.vs_official_pct <= FLAG_LOW));
 
-    return { product_id: pid, trends, forecast: f, outlookPct, signal, flagged };
+    // small chart on the card: official price per month (average of the ticked regions with data),
+    // then the estimate for the next months, scaled from the last official point (Tashkent model, an estimate)
+    const byMonth = new Map();
+    for (const h of history) {
+      if (h.product_id !== pid || h.price_som == null) continue;
+      const m = byMonth.get(h.month) ?? [];
+      m.push(Number(h.price_som));
+      byMonth.set(h.month, m);
+    }
+    const series = [...byMonth.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-12)
+      .map(([month, ps]) => ({ month, price: ps.reduce((s, p) => s + p, 0) / ps.length }));
+    const lastOfficial = series.at(-1);
+    const estimate = lastOfficial && fNow
+      ? f.filter((x) => x.month > thisMonth).slice(0, 3).map((x) => ({ month: x.month, price: lastOfficial.price * x.price_som / fNow.price_som }))
+      : [];
+
+    return { product_id: pid, trends, forecast: f, outlookPct, signal, flagged, series, estimate };
   });
 
   return { products, flaggedCount: products.reduce((s, p) => s + p.flagged.length, 0) };

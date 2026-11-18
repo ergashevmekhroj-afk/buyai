@@ -5,11 +5,16 @@
 import { useRef, useState } from "react";
 import { plan } from "../../lib/agents/planner.js";
 import { scout } from "../../lib/agents/priceScout.js";
-import { analyse } from "../../lib/agents/marketAnalyst.js";
+import { analyse, loadAnalystData } from "../../lib/agents/marketAnalyst.js";
 import { advise } from "../../lib/agents/financeAdvisor.js";
 import { finalAdvice } from "../../lib/agents/finalAdvice.js";
 import { sleep } from "../../lib/util.js";
 import { stopSpeaking } from "../../lib/voice.js";
+
+// Pauses only exist so people can watch the agents work. PACE 0.5 = half of the original pauses
+// (the full version felt slow in testing). 0 = no animation at all.
+const PACE = 0.5;
+const pause = (ms) => sleep(ms * PACE);
 
 const freshCards = () => [0, 1, 2, 3].map(() => ({ state: "wait", items: [] }));
 let uid = 0;
@@ -46,19 +51,21 @@ export function useAgentRun(ref) {
         add(0, { kind: "source", source: order.source });
         state(0, "done"); setPhase("done"); return;
       }
-      await sleep(300);
+      await pause(300);
       const tags = add(0, { kind: "tags", tags: [] });
-      for (const it of order.items) { patch(0, tags, (x) => ({ tags: [...x.tags, { type: "item", ...it }] })); await sleep(220); }
+      for (const it of order.items) { patch(0, tags, (x) => ({ tags: [...x.tags, { type: "item", ...it }] })); await pause(220); }
       patch(0, tags, (x) => ({ tags: [...x.tags, { type: "cash", value: order.cash_som }, { type: "deadline", value: order.deadline_days }] }));
       if (order.items.some((i) => i.defaulted)) add(0, { kind: "defaultQty" });
       add(0, { kind: "source", source: order.source });
-      await sleep(250);
+      await pause(250);
       if (!order.items.length) { add(0, { kind: "text", key: "p_nothing" }); state(0, "done"); setPhase("done"); return; }
       state(0, "done");
 
       // ---- 2. Dallol (Price Scout): offers in the ticked regions, cheapest delivered cost first ----
       state(1, "running");
       add(1, { kind: "muted", key: "s_loading", params: { r: regionIds.length } });
+      const analystData = loadAnalystData(order, regionIds, ref);   // start Tarozibon ota's download now, in parallel
+      analystData.catch(() => {});                                   // (an error shows up when he uses it)
       const s = await scout(order, regionIds);
       if (!alive()) return;
       clear(1);
@@ -77,24 +84,25 @@ export function useAgentRun(ref) {
           seen = Math.min(seen + 1, s.offersChecked);
           const v = seen;
           patch(1, counter, () => ({ seen: v }));
-          await sleep(110);
+          await pause(110);
         }
-        await sleep(200);
+        await pause(200);
         patch(1, scan, () => ({ best: l.best }));
-        await sleep(250);
+        await pause(250);
       }
       patch(1, counter, () => ({ seen: s.offersChecked }));
       state(1, "done");
 
       // ---- 3. Tarozibon ota (Market Analyst): official price, trend, outlook, overpriced flags ----
       state(2, "running");
-      const a = await analyse(order, s, regionIds, ref);
+      const a = await analyse(order, s, regionIds, ref, analystData);
       if (!alive()) return;
       for (const pa of a.products) {
         const best = s.lines.find((l) => l.item.product_id === pa.product_id)?.best;
-        add(2, { kind: "verdictLine", product_id: pa.product_id, vs: best?.vs_official_pct ?? null, signal: pa.signal, outlookPct: pa.outlookPct });
-        await sleep(300);
-        for (const o of pa.flagged) { add(2, { kind: "flag", offer: o }); await sleep(250); }
+        // one compact block per product: signal, % vs official, a small price chart, and the warnings folded into one line
+        add(2, { kind: "verdictLine", product_id: pa.product_id, vs: best?.vs_official_pct ?? null, signal: pa.signal, outlookPct: pa.outlookPct,
+          series: pa.series, estimate: pa.estimate, flags: pa.flagged });
+        await pause(300);
       }
       state(2, "done");
 
@@ -103,7 +111,7 @@ export function useAgentRun(ref) {
       const f = advise(order, s, a, ref);
       add(3, { kind: "money", need: f.total, have: f.cash });
       add(3, { kind: "gauge", pct: f.cash != null ? Math.min(100, 100 * f.cash / f.total) : 0, short: !!f.shortfall });
-      await sleep(650);
+      await pause(650);
       add(3, { kind: "finVerdict", verdict: f.verdict, left: f.cash != null ? f.cash - f.total : null, short: f.shortfall, interest: f.interest });
       state(3, "done");
 

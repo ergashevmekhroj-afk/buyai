@@ -3,7 +3,9 @@
 // The key stays here (secret VOICELAB_API_KEY). Docs: https://docs.voicelab.uz/llms.txt
 //
 //   JSON {mode:"ping"}                          -> 200 if voice is configured (the app checks this first)
-//   JSON {mode:"tts", text, language}           -> audio/wav bytes
+//   JSON {mode:"tts", text, language, voice?, speed?} -> audio/wav bytes
+//        voice = 0..3 picks the agent's own voice (secret VOICELAB_VOICE_<LANG>_<n>, else the n-th listed voice)
+//   JSON {mode:"voices", language}              -> [{id, name, description}] (to choose voices per agent)
 //   multipart: audio=<file>, language=uz|ru|en  -> {text}
 // Both VoiceLab jobs may finish later (HTTP 202), so we poll until they are done.
 
@@ -25,24 +27,32 @@ const key = () => (Deno.env.get("VOICELAB_API_KEY") ?? "").replace(/[^\x21-\x7E]
 const auth = () => ({ Authorization: `Bearer ${key()}` });
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-// Voice per language: a secret like VOICELAB_VOICE_UZ wins; otherwise the first voice VoiceLab lists
-const voiceCache: Record<string, string> = {};
-async function voiceFor(lang: string): Promise<string> {
-  const fixed = Deno.env.get(`VOICELAB_VOICE_${lang.toUpperCase()}`);
-  if (fixed) return fixed;
-  if (voiceCache[lang]) return voiceCache[lang];
+// All voices VoiceLab offers for a language (cached)
+const listCache: Record<string, { id: string; display_name?: string; description?: string }[]> = {};
+async function listVoices(lang: string) {
+  if (listCache[lang]) return listCache[lang];
   const res = await fetch(`${API}/v1/voices?language=${lang}&model_id=${MODEL}`, { headers: auth() });
   if (!res.ok) throw new Error(`voices ${res.status}`);
-  const id = (await res.json()).data?.[0]?.id;
-  if (!id) throw new Error(`no voice for ${lang}`);
-  return (voiceCache[lang] = id);
+  const list = (await res.json()).data ?? [];
+  if (!list.length) throw new Error(`no voice for ${lang}`);
+  return (listCache[lang] = list);
 }
 
-async function textToSpeech(text: string, lang: string): Promise<Response> {
+// Voice per language (and per agent, n = 0..3). A secret wins: VOICELAB_VOICE_UZ_3 for agent 4 in Uzbek,
+// or VOICELAB_VOICE_UZ for everyone. Otherwise the n-th voice VoiceLab lists (wraps around if fewer).
+async function voiceFor(lang: string, n: number | null = null): Promise<string> {
+  const L = lang.toUpperCase();
+  const fixed = (n != null && Deno.env.get(`VOICELAB_VOICE_${L}_${n}`)) || Deno.env.get(`VOICELAB_VOICE_${L}`);
+  if (fixed) return fixed;
+  const list = await listVoices(lang);
+  return list[(n ?? 0) % list.length].id;
+}
+
+async function textToSpeech(text: string, lang: string, n: number | null = null, speed = 1, voiceId: string | null = null): Promise<Response> {
   const res = await fetch(`${API}/v1/tts`, {
     method: "POST",
     headers: { ...auth(), "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
-    body: JSON.stringify({ text, language: lang, voice_id: await voiceFor(lang), model_id: MODEL, speed: 1 }),
+    body: JSON.stringify({ text, language: lang, voice_id: voiceId ?? await voiceFor(lang, n), model_id: MODEL, speed }),
   });
   if (res.status === 200) return wav(await res.arrayBuffer());
   if (res.status !== 202) throw new Error(`tts ${res.status}: ${await res.text()}`);
@@ -103,7 +113,15 @@ Deno.serve(async (req) => {
       const text = String(body.text ?? "").trim().slice(0, 1500);   // 1 character = 1 credit
       const lang = LANGS.includes(body.language) ? body.language : "uz";
       if (!text) return json({ error: "empty text" }, 400);
-      return await textToSpeech(text, lang);
+      // the app may name an exact voice (each agent has its own, see web/src/agentsInfo.js)
+      const voiceId = typeof body.voice_id === "string" && /^voice_[\w-]{4,60}$/.test(body.voice_id) ? body.voice_id : null;
+      const n = [0, 1, 2, 3].includes(body.voice) ? body.voice : null;
+      const speed = Math.min(2, Math.max(0.5, Number(body.speed) || 1));
+      return await textToSpeech(text, lang, n, speed, voiceId);
+    }
+    if (body.mode === "voices") {
+      const lang = LANGS.includes(body.language) ? body.language : "uz";
+      return json((await listVoices(lang)).map((v) => ({ id: v.id, name: v.display_name, description: v.description })));
     }
     return json({ error: "unknown mode" }, 400);
   } catch (error) {

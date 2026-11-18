@@ -6,3 +6,4 @@ web/dist/
 web/.vite/
 *.log
 .env*
+supabase/.temp/

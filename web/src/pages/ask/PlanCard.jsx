@@ -8,7 +8,9 @@ import { FLAG_HIGH } from "../../lib/agents/marketAnalyst.js";
 import { speak, stopSpeaking } from "../../lib/voice.js";
 import { useLang } from "../../hooks.js";
 import Badge from "../../components/Badge.jsx";
+import ProductIcon from "../../components/ProductIcon.jsx";
 import { SELLER_FEE, feeOnPlan } from "../../lib/business.js";
+import { NARRATOR } from "../../agentsInfo.js";
 
 const VERDICT = { enough: "v_enough", borrow: "v_borrow", wait: "v_wait", nocash: "v_nocash" };
 
@@ -43,7 +45,7 @@ export default function PlanCard({ result, refData: ref, soundOn }) {
       .finally(() => {
         clearTimeout(timer);
         if (ctrl.signal.aborted && text == null && spokenFor.current === result.id) return;
-        if (sound.current && spokenFor.current !== result.id) { spokenFor.current = result.id; speak(text ?? template); }
+        if (sound.current && spokenFor.current !== result.id) { spokenFor.current = result.id; speak(text ?? template, undefined, NARRATOR); }
       });
     return () => { ctrl.abort(); clearTimeout(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -52,7 +54,7 @@ export default function PlanCard({ result, refData: ref, soundOn }) {
   function toggleRead() {
     if (reading) { stopSpeaking(); setReading(false); return; }
     setReading(true);
-    speak(explanation, () => setReading(false));
+    speak(explanation, () => setReading(false), NARRATOR);
   }
 
   const vs = (p) => {
@@ -88,12 +90,12 @@ export default function PlanCard({ result, refData: ref, soundOn }) {
         <tbody>
           {s.lines.map((l) => {
             const p = product(l.item.product_id);
-            if (!l.best) return <tr key={p.product_id}><td><b>{nameOf(p)}</b></td><td colSpan={4} className="muted">{t("no_offer_row")}</td></tr>;
+            if (!l.best) return <tr key={p.product_id}><td><span className="p-cell"><ProductIcon id={p.product_id} size={26} /><span><b>{nameOf(p)}</b></span></span></td><td colSpan={4} className="muted">{t("no_offer_row")}</td></tr>;
             const o = l.best;
             return (
               <tr key={p.product_id}>
-                <td><b>{nameOf(p)}</b><span className="sub">{qtyText(o.buyQty, p.unit)}</span>
-                  {o.buyQty > l.item.quantity && <span className="sub">{t("min_order", { q: qtyText(o.min_qty, p.unit) })}</span>}</td>
+                <td><span className="p-cell"><ProductIcon id={p.product_id} size={26} /><span><b>{nameOf(p)}</b><span className="sub">{qtyText(o.buyQty, p.unit)}</span>
+                  {o.buyQty > l.item.quantity && <span className="sub">{t("min_order", { q: qtyText(o.min_qty, p.unit) })}</span>}</span></span></td>
                 <td>{o.seller_name} <Badge offer={o} /><span className="sub">{o.market_name ?? ""}, {regionName(o.region_id)}{o.phone ? `, ${o.phone}` : ""}</span></td>
                 <td className="num">{som(o.price_som)}<span className="sub">{t("delivery")} {o.delivery_fee_som ? som(o.delivery_fee_som) : t("free")}</span></td>
                 <td className="num">{vs(o.vs_official_pct)}<span className="sub">{t("official")} {som(o.official_avg_som)}</span></td>

@@ -244,9 +244,9 @@ const T = {
   run_error: { uz: "Xatolik: {msg}. Internetni tekshirib, qayta urinib ko'ring.", ru: "Ошибка: {msg}. Проверьте интернет и попробуйте ещё раз.", en: "Error: {msg}. Check your connection and try again." },
   pick_region: { uz: "Kamida bitta viloyatni belgilang.", ru: "Отметьте хотя бы один регион.", en: "Tick at least one region." },
   footer: {
-    uz: "Rasmiy narxlar: O'zbekiston Milliy statistika qo'mitasi (stat.uz, SIAT), CC BY 4.0. Kredit stavkalari: Markaziy bank taqqoslashi (19.10.2026), taklif emas. Demo sotuvchilar namuna ma'lumot; prognozlar taxmin. Ovoz: VoiceLab. AI: Gemini (zaxira: Claude).",
-    ru: "Официальные цены: Национальный комитет по статистике (stat.uz, SIAT), CC BY 4.0. Ставки: сравнение ЦБ (19.10.2026), не оферта. Демо-продавцы — образец данных; прогнозы — оценки. Голос: VoiceLab. AI: Gemini (резерв: Claude).",
-    en: "Official prices: National Statistics Committee of Uzbekistan (stat.uz, SIAT), CC BY 4.0. Loan rates: Central Bank comparison (19.10.2026), not an offer. Demo sellers are sample data; forecasts are estimates. Voice: VoiceLab. AI: Gemini (backup: Claude).",
+    uz: "Rasmiy narxlar: O'zbekiston Milliy statistika qo'mitasi (stat.uz, SIAT), CC BY 4.0. Kredit stavkalari: Markaziy bank taqqoslashi (19.10.2026), taklif emas. Demo sotuvchilar namuna ma'lumot; prognozlar taxmin. Ovoz: VoiceLab. Rasmlar: Twemoji (CC BY 4.0). AI: Gemini (zaxira: Claude).",
+    ru: "Официальные цены: Национальный комитет по статистике (stat.uz, SIAT), CC BY 4.0. Ставки: сравнение ЦБ (19.10.2026), не оферта. Демо-продавцы — образец данных; прогнозы — оценки. Голос: VoiceLab. Иконки: Twemoji (CC BY 4.0). AI: Gemini (резерв: Claude).",
+    en: "Official prices: National Statistics Committee of Uzbekistan (stat.uz, SIAT), CC BY 4.0. Loan rates: Central Bank comparison (19.10.2026), not an offer. Demo sellers are sample data; forecasts are estimates. Voice: VoiceLab. Icons: Twemoji (CC BY 4.0). AI: Gemini (backup: Claude).",
   },
   // ---------- business model (plan card + Agents page; numbers in lib/business.js) ----------
   earn_title: { uz: "Siz uchun bepul.", ru: "Для вас бесплатно.", en: "Free for you." },

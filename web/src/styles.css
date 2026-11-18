@@ -399,3 +399,49 @@ input, select, textarea { font: inherit; color: var(--text); }
 .bm-h { margin: 28px 0 10px; font-size: 1.1rem; }
 .badge-est { font-size: .7rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--amber-soft); color: var(--amber); vertical-align: middle; }
 .bm td.good { color: var(--green); }
+
+/* 🔊 on each finished agent card: that agent reads its card in its own voice */
+
+.agent-voice { flex: none; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line);
+  background: var(--card); cursor: pointer; font-size: .9rem; display: grid; place-items: center; box-shadow: var(--shadow); }
+.agent-voice:hover { border-color: var(--brand); }
+.agent-voice.on { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+/* ---------- visuals on the agent cards: product pictures, Dallol's price bar, Tarozibon's mini chart ---------- */
+.p-icon { display: inline-block; vertical-align: -0.2em; flex: none; }
+.tagx { display: inline-flex; align-items: center; gap: 4px; }
+.feed .label { display: flex; align-items: center; gap: 6px; font-size: .78rem; color: var(--text); }
+.best-offer { padding: 8px 10px; border-radius: 10px; background: var(--green-soft); outline: 1px solid var(--green); }
+.bo-top { display: flex; align-items: baseline; gap: 4px; }
+.bo-price { font-size: 1.15rem; font-weight: 800; color: var(--green-2); font-variant-numeric: tabular-nums; }
+.bo-top small { color: var(--muted); }
+.bo-total { margin-left: auto; font-size: .78rem; font-weight: 600; color: var(--text); white-space: nowrap; }
+.bo-seller { font-size: .78rem; color: var(--muted); margin-top: 1px; }
+.prange { margin-top: 6px; }
+.pr-bar { position: relative; height: 14px; }
+.pr-bar::before { content: ""; position: absolute; left: 0; right: 0; top: 6px; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--green), var(--line) 50%, var(--amber)); opacity: .55; }
+.pr-bar i { position: absolute; top: 50%; transform: translate(-50%, -50%); border-radius: 50%; }
+.pr-dot { width: 5px; height: 5px; background: var(--muted); opacity: .4; }
+.pr-official { width: 2px !important; height: 14px; border-radius: 1px !important; background: var(--ink); }
+.pr-chosen { width: 12px; height: 12px; background: var(--green); box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(0,0,0,.25); }
+.pr-labels { display: flex; justify-content: space-between; font-size: .68rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pr-off { color: var(--ink); font-weight: 600; }
+.verdict-block { display: grid; gap: 4px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.vb-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.vb-body { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; }
+.vb-vs { display: grid; line-height: 1.1; }
+.vb-vs b { font-size: 1.2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.vb-vs small { font-size: .68rem; color: var(--muted); }
+.vb-vs.down b { color: var(--green); }
+.vb-vs.up b { color: var(--amber); }
+.spark { width: 100%; height: 34px; display: block; }
+.sp-line { fill: none; stroke: var(--green); stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.spark.up .sp-line { stroke: var(--amber); }
+.sp-fill { fill: var(--green-soft); }
+.spark.up .sp-fill { fill: var(--amber-soft); }
+.sp-est { fill: none; stroke: var(--muted); stroke-width: 2; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
+.flag-btn { border: 0; background: var(--amber-soft); color: var(--amber); font: inherit; font-size: .78rem; font-weight: 600; padding: 4px 9px; border-radius: 999px; cursor: pointer; justify-self: start; }
+.flag-list { display: grid; gap: 4px; justify-items: start; }
+.flag-list .row-item { width: 100%; box-sizing: border-box; font-size: .78rem; }
+.p-cell { display: flex; align-items: center; gap: 8px; }

@@ -3,7 +3,7 @@
 // products + quantities, cash on hand, deadline.
 // First it asks the AI (Gemini or Claude, via our server function). If that fails or is slow, it uses the
 // keyword parser below, which needs no internet beyond our database.
-import { AI_URL, AI_TIMEOUT_MS, SUPABASE_KEY } from "../config.js";
+import { AI_URL, PARSE_TIMEOUT_MS, SUPABASE_KEY } from "../config.js";
 
 // Make apostrophes and letters uniform: o‘zbek / o'zbek / oʻzbek -> o'zbek
 export function normalize(text) {
@@ -109,7 +109,7 @@ export function parseWithKeywords(sentence, products) {
 // Ask the AI (Gemini or Claude) through our server function; null if it fails or takes too long
 async function parseWithAI(sentence, products) {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), AI_TIMEOUT_MS);
+  const timer = setTimeout(() => ctrl.abort(), PARSE_TIMEOUT_MS);
   try {
     const res = await fetch(AI_URL, {
       method: "POST",
@@ -151,8 +151,11 @@ export const DEFAULT_QTY = 10;
 // Main entry: returns the order + which engine read it + highlight spans
 export async function plan(sentence, products) {
   const keywordResult = parseWithKeywords(sentence, products);
-  const ai = await parseWithAI(sentence, products);
-  // off-topic: no products, Mirzo politely says what BuyAI can help with (the question itself is never answered)
+  let ai = await parseWithAI(sentence, products);
+  // off-topic: no products, Mirzo politely says what BuyAI can help with (the question itself is never answered).
+  // Safety net: if the AI says "off-topic" but the sentence names catalog products, it is a price question
+  // ("Qaysi bozorda shakar arzon?"), so we use the keyword parser instead of refusing.
+  if (ai?.offTopic && keywordResult.items.length) ai = null;
   if (ai?.offTopic) return { items: [], cash_som: null, deadline_days: null, spans: [], source: ai.engine, offTopic: true };
   const order = ai ? { ...ai.order, spans: keywordResult.spans } : keywordResult;
   const source = ai ? ai.engine : "keywords";   // "gemini" | "claude" | "keywords"
