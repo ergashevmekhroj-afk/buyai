@@ -78,12 +78,15 @@ function FeedItem({ it, refData: ref }) {
     case "tags": return (
       <div className="extract">
         {it.tags.map((tg, i) => {
-          if (tg.type === "item") { const p = product(tg.product_id); return <span key={i} className="tagx"><ProductIcon id={tg.product_id} size={16} /> {nameOf(p)} · {qtyText(tg.quantity, p.unit)}{tg.defaulted ? "*" : ""}</span>; }
+          if (tg.type === "item") { const p = product(tg.product_id); return <span key={i} className="tagx"><ProductIcon id={tg.product_id} size={16} /> {nameOf(p)} · {tg.fromBudget ? t("p_from_budget") : <>{qtyText(tg.quantity, p.unit)}{tg.defaulted ? "*" : ""}</>}</span>; }
           const label = tg.type === "cash" ? t("p_cash") : t("p_deadline");
           const value = tg.value == null ? t("p_not_said") : tg.type === "cash" ? mln(tg.value) : t("p_days", { n: tg.value });
           return <span key={i} className={`tagx ${tg.value == null ? "grey" : ""}`}>{label}: {value}</span>;
         })}
       </div>);
+    case "groups": return line(<small className="muted">{t("p_groups", { groups: it.groups.map((g) => t(`grp_${g}`)).join(", "), n: it.n })}</small>);
+    case "budget": return line(
+      <div className="budget-split">💰 {t("s_budget", { cash: mln(it.cash), n: it.n, share: mln(it.share) })}</div>);
     case "defaultQty": return line(<small className="muted">* {t("p_default_qty", { n: DEFAULT_QTY })}</small>);
     case "source": {
       const by = { gemini: "Gemini", claude: "Claude" }[it.source];

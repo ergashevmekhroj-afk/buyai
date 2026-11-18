@@ -445,3 +445,40 @@ input, select, textarea { font: inherit; color: var(--text); }
 .flag-list { display: grid; gap: 4px; justify-items: start; }
 .flag-list .row-item { width: 100%; box-sizing: border-box; font-size: .78rem; }
 .p-cell { display: flex; align-items: center; gap: 8px; }
+
+/* ---------- clickable sellers + seller card pop-up ---------- */
+.seller-link { border: 0; background: none; padding: 0; font: inherit; font-weight: 600; color: var(--text); cursor: pointer;
+  text-decoration: underline; text-decoration-color: var(--brand); text-underline-offset: 3px; text-align: left; }
+.seller-link:hover { color: var(--brand); }
+.modal-back { position: fixed; inset: 0; z-index: 50; background: rgba(17,19,23,.45); display: grid; place-items: center; padding: 16px; animation: in .2s ease both; }
+.modal { position: relative; width: min(520px, 100%); max-height: calc(100vh - 32px); overflow: auto; background: var(--card); border-radius: 20px;
+  padding: 22px; box-shadow: var(--shadow-lg); box-sizing: border-box; }
+.modal-x { position: absolute; top: 10px; right: 12px; width: 34px; height: 34px; border: 0; border-radius: 50%; background: var(--soft); font-size: 1.3rem; cursor: pointer; }
+.sc-head { display: flex; gap: 14px; align-items: center; padding-right: 36px; }
+.sc-head h2 { margin: 0; font-size: 1.3rem; }
+.sc-head p { margin: 4px 0 0; font-size: .86rem; }
+.sc-avatar { flex: none; width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-weight: 800; font-size: 1.4rem;
+  color: #fff; background: linear-gradient(135deg, var(--brand), var(--amber)); }
+.sc-contact { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 4px; }
+.sc-contact p { margin: 0; }
+.sc-call { text-decoration: none; }
+.sc-contact .btn-ghost { text-decoration: none; display: inline-flex; align-items: center; }
+.sc-h { margin: 18px 0 8px; font-size: 1rem; }
+.sc-offers { display: grid; gap: 6px; }
+.sc-offer { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 12px; background: var(--soft); }
+.sc-offer:has(.sc-del) { grid-template-columns: auto 1fr auto auto; }
+.sc-o-name, .sc-o-price { display: grid; line-height: 1.25; }
+.sc-o-name small, .sc-o-price small { color: var(--muted); font-size: .74rem; }
+.sc-o-price { text-align: right; }
+.sc-o-price small.down { color: var(--green); }
+.sc-o-price small.flag-high { color: var(--amber); }
+.sc-del { padding: 6px 8px; }
+
+/* ---------- seller login ---------- */
+.auth-tabs { display: flex; justify-self: start; margin-bottom: 4px; }
+.auth-tabs button { border: 0; background: none; font: inherit; font-weight: 600; padding: 8px 14px; border-radius: 999px; cursor: pointer; color: var(--muted); }
+.auth-tabs button.active { background: var(--ink); color: #fff; }
+.who { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+.who span { margin-right: auto; }
+.row-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.budget-split { padding: 8px 10px; border-radius: 10px; background: var(--brand-soft); font-weight: 600; font-size: .82rem; }

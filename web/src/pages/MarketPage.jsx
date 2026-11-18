@@ -5,11 +5,13 @@ import { t, nameOf } from "../lib/i18n.js";
 import { som, pct } from "../lib/util.js";
 import PriceChart from "../components/PriceChart.jsx";
 import Badge from "../components/Badge.jsx";
+import SellerCard from "../components/SellerCard.jsx";
 
 export default function MarketPage({ refData: ref, active }) {
   const [product, setProduct] = useState("rice");
   const [sourceId, setSourceId] = useState("tsh_city_market");
   const [data, setData] = useState(null);       // { history, forecasts, offers }
+  const [openSeller, setOpenSeller] = useState(null);   // seller_id whose card is open
 
   // reload whenever the page is opened or the choice changes (so a new seller offer shows up)
   useEffect(() => {
@@ -55,7 +57,7 @@ export default function MarketPage({ refData: ref, active }) {
               const cls = o.vs_official_pct >= 20 ? "flag-high" : o.vs_official_pct <= -20 ? "flag-low" : o.vs_official_pct < 0 ? "down" : "";
               return (
                 <tr key={o.offer_id}>
-                  <td>{o.seller_name} <Badge offer={o} /><span className="sub">{o.market_name ?? ""}</span></td>
+                  <td><button type="button" className="seller-link" onClick={() => setOpenSeller(o.seller_id)}>{o.seller_name}</button> <Badge offer={o} /><span className="sub">{o.market_name ?? ""}</span></td>
                   <td>{regionName(o.region_id)}</td>
                   <td className="num">{som(o.price_som)}<span className="sub">min {Number(o.min_qty)}</span></td>
                   <td className="num"><span className={cls}>{pct(o.vs_official_pct)}</span></td>
@@ -65,6 +67,7 @@ export default function MarketPage({ refData: ref, active }) {
           </tbody>
         </table></div>
       </div>
+      {openSeller && <SellerCard sellerId={openSeller} refData={ref} onClose={() => setOpenSeller(null)} />}
     </section>
   );
 }

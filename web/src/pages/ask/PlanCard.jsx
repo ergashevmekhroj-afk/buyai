@@ -9,6 +9,7 @@ import { speak, stopSpeaking } from "../../lib/voice.js";
 import { useLang } from "../../hooks.js";
 import Badge from "../../components/Badge.jsx";
 import ProductIcon from "../../components/ProductIcon.jsx";
+import SellerCard from "../../components/SellerCard.jsx";
 import { SELLER_FEE, feeOnPlan } from "../../lib/business.js";
 import { NARRATOR } from "../../agentsInfo.js";
 
@@ -18,6 +19,7 @@ export default function PlanCard({ result, refData: ref, soundOn }) {
   const lng = useLang();
   const [ai, setAi] = useState(null);          // { text, engine } from the AI, or null = template text
   const [reading, setReading] = useState(false);
+  const [openSeller, setOpenSeller] = useState(null);   // seller card pop-up
   const spokenFor = useRef(null);             // speak once per new plan (not again on a language switch)
   const sound = useRef(soundOn);
   sound.current = soundOn;
@@ -96,7 +98,7 @@ export default function PlanCard({ result, refData: ref, soundOn }) {
               <tr key={p.product_id}>
                 <td><span className="p-cell"><ProductIcon id={p.product_id} size={26} /><span><b>{nameOf(p)}</b><span className="sub">{qtyText(o.buyQty, p.unit)}</span>
                   {o.buyQty > l.item.quantity && <span className="sub">{t("min_order", { q: qtyText(o.min_qty, p.unit) })}</span>}</span></span></td>
-                <td>{o.seller_name} <Badge offer={o} /><span className="sub">{o.market_name ?? ""}, {regionName(o.region_id)}{o.phone ? `, ${o.phone}` : ""}</span></td>
+                <td><button type="button" className="seller-link" onClick={() => setOpenSeller(o.seller_id)}>{o.seller_name}</button> <Badge offer={o} /><span className="sub">{o.market_name ?? ""}, {regionName(o.region_id)}{o.phone ? `, ${o.phone}` : ""}</span></td>
                 <td className="num">{som(o.price_som)}<span className="sub">{t("delivery")} {o.delivery_fee_som ? som(o.delivery_fee_som) : t("free")}</span></td>
                 <td className="num">{vs(o.vs_official_pct)}<span className="sub">{t("official")} {som(o.official_avg_som)}</span></td>
                 <td className="num"><b>{mln(o.goodsCost)}</b></td>
@@ -128,6 +130,7 @@ export default function PlanCard({ result, refData: ref, soundOn }) {
         <ul><li>{t("tax_1", { std: f.tax.std, ip: f.tax.ip })}</li><li>{t("tax_2", { lim: f.tax.lim })}</li><li>{t("tax_3")}</li></ul>
         <p className="hint">{t("tax_note")}</p>
       </details>
+      {openSeller && <SellerCard sellerId={openSeller} refData={ref} onClose={() => setOpenSeller(null)} />}
     </>
   );
 }

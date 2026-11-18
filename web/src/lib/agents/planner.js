@@ -130,11 +130,12 @@ async function parseWithAI(sentence, products) {
     const items = (out.items ?? [])
       .filter((it) => known.has(it.product_id))
       .map((it) => ({ product_id: it.product_id, quantity: it.quantity > 0 ? it.quantity : null }));
-    if (!items.length) return null;
+    const categories = (out.categories ?? []).filter((c) => CATEGORIES[c]);
+    if (!items.length && !categories.length) return null;
     return {
       engine: out.engine ?? "ai",
       order: {
-        items,
+        items, categories,
         cash_som: out.cash_som > 0 ? out.cash_som : null,
         deadline_days: out.deadline_days >= 0 ? out.deadline_days : null,
       },
@@ -148,6 +149,31 @@ async function parseWithAI(sentence, products) {
 
 export const DEFAULT_QTY = 10;
 
+// Product groups: "sabzavotlar kerak" = the main vegetables a choyxona / canteen buys. Change the lists here.
+export const CATEGORIES = {
+  vegetables: ["potatoes", "onion", "carrot", "tomatoes", "cucumbers", "cabbage"],
+  fruits: ["apples", "pears", "grapes", "lemons"],
+  meat: ["beef", "mutton", "poultry"],
+  grains: ["rice", "flour_first", "peas", "mash", "beans"],
+  dairy: ["milk", "butter", "eggs"],
+};
+// Words for the keyword parser (Uzbek Latin + Cyrillic, Russian, English). "go'sht" counts only on its own:
+// "mol go'shti" is beef and is found as a product first.
+const CATEGORY_WORDS = {
+  vegetables: /(sabzavot|сабзавот|овощ|vegetable|veggie)/,
+  fruits: /(meva|мева|фрукт|fruit)/,
+  meat: /(^|[^\p{L}'])(go'sht|гўшт|мяс|meat)/u,
+  grains: /(don mahsulot|yorma|круп|grain|cereal)/,
+  dairy: /(sut mahsulot|молочн|молочк|dairy)/,
+};
+function findCategories(sentence, takenSpans) {
+  // blank out the words already understood as products, so "mol go'shti" is not also "meat"
+  const chars = [...normalize(sentence)];
+  for (const sp of takenSpans) if (sp.kind === "product") for (let i = sp.at; i < sp.at + sp.len; i++) chars[i] = " ";
+  const text = chars.join("");
+  return Object.keys(CATEGORY_WORDS).filter((c) => CATEGORY_WORDS[c].test(text));
+}
+
 // Main entry: returns the order + which engine read it + highlight spans
 export async function plan(sentence, products) {
   const keywordResult = parseWithKeywords(sentence, products);
@@ -155,13 +181,26 @@ export async function plan(sentence, products) {
   // off-topic: no products, Mirzo politely says what BuyAI can help with (the question itself is never answered).
   // Safety net: if the AI says "off-topic" but the sentence names catalog products, it is a price question
   // ("Qaysi bozorda shakar arzon?"), so we use the keyword parser instead of refusing.
-  if (ai?.offTopic && keywordResult.items.length) ai = null;
+  if (ai?.offTopic && (keywordResult.items.length || findCategories(sentence, keywordResult.spans).length)) ai = null;
   if (ai?.offTopic) return { items: [], cash_som: null, deadline_days: null, spans: [], source: ai.engine, offTopic: true };
   const order = ai ? { ...ai.order, spans: keywordResult.spans } : keywordResult;
   const source = ai ? ai.engine : "keywords";   // "gemini" | "claude" | "keywords"
-  // missing quantity -> a default, and say so
-  for (const it of order.items) {
-    if (!it.quantity) { it.quantity = DEFAULT_QTY; it.defaulted = true; }
+
+  // product groups ("sabzavotlar") -> their products, unless the buyer already named them
+  const categories = ai ? order.categories ?? [] : findCategories(sentence, keywordResult.spans);
+  const known = new Set(products.map((p) => p.product_id));
+  for (const c of categories) {
+    for (const id of CATEGORIES[c]) {
+      if (known.has(id) && !order.items.some((it) => it.product_id === id)) order.items.push({ product_id: id, quantity: null, fromGroup: c });
+    }
   }
-  return { ...order, source };
+  // Only money and no quantities ("8 mln bor, sabzavot kerak"): the Price Scout splits the budget evenly
+  // over the products and works out the kilograms. Otherwise a missing quantity gets the default, and we say so.
+  const budgetSplit = order.cash_som > 0 && order.items.length > 0 && order.items.every((it) => !it.quantity);
+  for (const it of order.items) {
+    if (it.quantity) continue;
+    if (budgetSplit) it.fromBudget = true;
+    else { it.quantity = DEFAULT_QTY; it.defaulted = true; }
+  }
+  return { ...order, categories, budgetSplit, source };
 }

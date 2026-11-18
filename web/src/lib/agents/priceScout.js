@@ -37,3 +37,19 @@ export async function scout(order, regionIds) {
 
   return { lines, goods, delivery, total: goods + delivery, savings, offersChecked: offers.length };
 }
+
+// Budget only, no quantities ("8 mln bor, sabzavotlar kerak"): split the money evenly over the products
+// that have a seller, and turn each share into a quantity at that seller's price:
+//     quantity = (share - delivery fee) / price, at least the seller's minimum order.
+// The Scout then runs again with these quantities (the cheapest seller can change with the quantity).
+export function fitBudget(order, scoutResult) {
+  const withSeller = scoutResult.lines.filter((l) => l.best);
+  const share = withSeller.length ? order.cash_som / withSeller.length : 0;
+  const items = order.items.map((it) => {
+    const best = scoutResult.lines.find((l) => l.item.product_id === it.product_id)?.best;
+    if (!best) return { ...it, quantity: 1 };                       // no seller: it shows "no offer" anyway
+    const q = Math.floor((share - best.delivery_fee_som) / best.price_som);
+    return { ...it, quantity: Math.max(q, Number(best.min_qty)) };
+  });
+  return { order: { ...order, items }, share, products: withSeller.length };
+}

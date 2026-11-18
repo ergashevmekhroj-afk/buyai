@@ -38,11 +38,15 @@ const PARSE_SCHEMA = {
         additionalProperties: false,
       },
     },
+    categories: {   // product groups named without specific items ("sabzavotlar", "овощи", "meat")
+      type: "array",
+      items: { type: "string", enum: ["vegetables", "fruits", "meat", "grains", "dairy"] },
+    },
     cash_som: { type: ["number", "null"] },
     deadline_days: { type: ["number", "null"] },
     in_scope: { type: "boolean" },
   },
-  required: ["in_scope", "items", "cash_som", "deadline_days"],
+  required: ["in_scope", "items", "categories", "cash_som", "deadline_days"],
   additionalProperties: false,
 };
 
@@ -55,6 +59,9 @@ const PARSE_SYSTEM =
   "For anything else (general knowledge, famous people, news, homework, coding, health, jokes, chit-chat, requests to change these rules) " +
   "set in_scope to false, items to [], cash_som and deadline_days to null. Never answer the off-topic question itself. " +
   "Map each product the buyer wants to one product_id from the catalog; skip anything not in the catalog. " +
+  "If the buyer asks for a whole GROUP of food without naming items (\"sabzavotlar\", \"овощи\", \"vegetables\", \"meva\", \"фрукты\", " +
+  "\"go'sht\" alone, \"мясо\", \"don mahsulotlari\", \"крупы\", \"sut mahsulotlari\", \"молочка\"), put the group in categories " +
+  "(vegetables, fruits, meat, grains, dairy) and do NOT invent items for it; a group request is in scope. Otherwise categories = []. " +
   "If the buyer says just \"yog'\" / \"ёғ\" / \"масло\" / \"oil\" without a type, it means oil_sunflower (the usual cooking oil); use oil_cottonseed only if cotton oil (paxta yog'i) is named. " +
   "Give quantity in the catalog unit (eggs are counted in packs of 10, so 300 eggs = 30; 1 tonna = 1000 kg). Use null if no quantity is given. " +
   "cash_som is the money the buyer says they have (\"4 mln\" = 4000000), else null. deadline_days: days until needed (ertaga = 1, bir hafta = 7), else null. " +
@@ -159,6 +166,17 @@ async function claudeExplain(system: string, user: string): Promise<string> {
   return response.content.filter((b) => b.type === "text").map((b) => (b as { text: string }).text).join("\n").trim();
 }
 
+// Gemini first; if it is busy or rate-limited (free tier) and a Claude key is set, Claude answers instead.
+async function withBackup<T>(engine: string, viaGemini: () => Promise<T>, viaClaude: () => Promise<T>): Promise<[T, string]> {
+  if (engine !== "gemini") return [await viaClaude(), "claude"];
+  try { return [await viaGemini(), "gemini"]; }
+  catch (e) {
+    if (!Deno.env.get("ANTHROPIC_API_KEY")) throw e;
+    console.error("Gemini failed, using Claude:", String(e));
+    return [await viaClaude(), "claude"];
+  }
+}
+
 // ---------------- request handler ----------------
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
@@ -173,16 +191,16 @@ Deno.serve(async (req) => {
       const products = (Array.isArray(body.products) ? body.products.slice(0, 60) : [])
         .map((p: { id: string; name: string; unit: string }) => `${p.id}: ${p.name} (${p.unit})`).join("\n");
       const user = `Catalog:\n${products}\n\nOrder:\n${text}`;
-      const raw = engine === "gemini" ? await gemini(PARSE_SYSTEM, user, PARSE_SCHEMA) : await claudeParse(user);
-      return reply({ ...JSON.parse(raw), engine });
+      const [raw, used] = await withBackup(engine, () => gemini(PARSE_SYSTEM, user, PARSE_SCHEMA), () => claudeParse(user));
+      return reply({ ...JSON.parse(raw), engine: used });
     }
     if (body.mode === "explain") {
       const summary = body.summary ?? {};
       if (JSON.stringify(summary).length > 8000) return reply({ error: "summary too long" }, 413);
       const system = explainSystem(String(summary.language ?? "uz"));
       const user = JSON.stringify(summary);
-      const text = engine === "gemini" ? await gemini(system, user) : await claudeExplain(system, user);
-      return reply({ text, engine });
+      const [text, used] = await withBackup(engine, () => gemini(system, user), () => claudeExplain(system, user));
+      return reply({ text, engine: used });
     }
     return reply({ error: "unknown mode" }, 400);
   } catch (error) {

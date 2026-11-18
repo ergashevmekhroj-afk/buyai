@@ -4,7 +4,7 @@
 // (kind + numbers), and AgentCards.jsx turns it into text, so a language switch re-translates everything.
 import { useRef, useState } from "react";
 import { plan } from "../../lib/agents/planner.js";
-import { scout } from "../../lib/agents/priceScout.js";
+import { scout, fitBudget } from "../../lib/agents/priceScout.js";
 import { analyse, loadAnalystData } from "../../lib/agents/marketAnalyst.js";
 import { advise } from "../../lib/agents/financeAdvisor.js";
 import { finalAdvice } from "../../lib/agents/finalAdvice.js";
@@ -42,7 +42,7 @@ export function useAgentRun(ref) {
       // ---- 1. Mirzo (Planner): read the sentence ----
       state(0, "running");
       add(0, { kind: "muted", key: "p_reading" });
-      const order = await plan(text, ref.products);
+      let order = await plan(text, ref.products);
       if (!alive()) return;
       clear(0);
       add(0, { kind: "sentence", text, spans: order.spans });
@@ -56,6 +56,7 @@ export function useAgentRun(ref) {
       for (const it of order.items) { patch(0, tags, (x) => ({ tags: [...x.tags, { type: "item", ...it }] })); await pause(220); }
       patch(0, tags, (x) => ({ tags: [...x.tags, { type: "cash", value: order.cash_som }, { type: "deadline", value: order.deadline_days }] }));
       if (order.items.some((i) => i.defaulted)) add(0, { kind: "defaultQty" });
+      if (order.categories?.length) add(0, { kind: "groups", groups: order.categories, n: order.items.filter((i) => i.fromGroup).length });
       add(0, { kind: "source", source: order.source });
       await pause(250);
       if (!order.items.length) { add(0, { kind: "text", key: "p_nothing" }); state(0, "done"); setPhase("done"); return; }
@@ -66,9 +67,19 @@ export function useAgentRun(ref) {
       add(1, { kind: "muted", key: "s_loading", params: { r: regionIds.length } });
       const analystData = loadAnalystData(order, regionIds, ref);   // start Tarozibon ota's download now, in parallel
       analystData.catch(() => {});                                   // (an error shows up when he uses it)
-      const s = await scout(order, regionIds);
+      let s = await scout(order, regionIds);
+      let budgetNote = null;
+      if (order.budgetSplit) {
+        // only money given: share it evenly, compute the kilograms, then look for sellers again with those amounts
+        const fit = fitBudget(order, s);
+        order = fit.order;
+        s = await scout(order, regionIds);
+        if (!alive()) return;
+        budgetNote = { kind: "budget", cash: order.cash_som, n: fit.products, share: fit.share };
+      }
       if (!alive()) return;
       clear(1);
+      if (budgetNote) add(1, budgetNote);
       const counter = add(1, { kind: "counter", seen: 0, total: s.offersChecked });
       let seen = 0;
       for (const l of s.lines) {
